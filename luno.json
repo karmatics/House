@@ -1,0 +1,40 @@
+{
+  "name": "House",
+  "version": "1.0.0",
+  "description": "Three.js 3D viewport sample app — drop in a .glb, tweak lighting, and build on top of it. (Forked from Basic3D)",
+  "type": "luno-web-app",
+  "mainClass": "House",
+  "entrypoint": {
+    "file": "House.js",
+    "class": "House",
+    "method": "run"
+  },
+  "main": [
+    "ModelLoader.js",
+    "Simple3dShapes.js",
+    "House.js"
+  ],
+  "library": [
+    "DomBasics.js",
+    "UITools.js",
+    "ThreeJSLoader.js"
+  ],
+  "styles": [
+    "basic3d.css"
+  ],
+  "processedCountSinceCheckpoint": 20,
+  "changedMethods": {
+    "House/luno.json": "2026-08-30T13:19:24.327Z",
+    "Library/ThreeJSLoader.js": "2026-08-30T18:28:04.452Z",
+    "House/Simple3dShapes.js": "2026-08-30T13:19:24.327Z",
+    "House/ModelLoader.js": "2026-08-30T13:19:24.327Z",
+    "House/House.js": "2026-08-30T18:28:04.452Z",
+    "LunoParser/protocol_test.js": "2026-09-27T19:18:36.687Z",
+    "Simple3dShapes.js": "2026-10-26T21:27:01.326Z",
+    "House.js": "2026-10-26T21:27:01.326Z",
+    "src/Simple3dShapes.js": "2026-10-26T19:25:39.796Z",
+    "src/House.js": "2026-10-26T19:25:39.796Z"
+  },
+  "lastCheckpointTime": "2026-10-26T19:18:36.472Z",
+  "pendingCheckpointDescription": "Clean fork initialized from Basic3D"
+}
