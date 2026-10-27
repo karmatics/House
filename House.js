@@ -90,360 +90,486 @@ class House {
   }
 
   _setPresetView(viewName) {
-    if (!this.app || !this.app.camera || !this.app.controls) return;
-    const cam = this.app.camera;
-    const ctrl = this.app.controls;
+      if (!this.app || !this.app.camera || !this.app.controls) return;
+      const cam = this.app.camera;
+      const ctrl = this.app.controls;
 
-    let target = new this.app.THREE.Vector3(1.2, 3.8, 0.0);
+      let target = new this.app.THREE.Vector3(1.2, 3.8, 0.0);
 
-    switch (viewName) {
-      case 'abacusCutClose':
-        // Direct front-on close-up targeting the abacus front cut and inner triangle
-        target = new this.app.THREE.Vector3(-1.75, 11.85, -0.55);
-        cam.position.set(-1.75, 11.95, 3.1);
-        break;
-      case 'abacusClose':
-        // 3/4 perspective matching user's reference inset
-        target = new this.app.THREE.Vector3(-1.75, 11.75, -0.75);
-        cam.position.set(-3.2, 12.6, 1.2);
-        break;
-      case 'towerClose':
-        target = new this.app.THREE.Vector3(-1.75, 11.5, -0.75);
-        cam.position.set(-4.6, 12.8, 2.5);
-        break;
-      case 'towerFront':
-        target = new this.app.THREE.Vector3(-1.75, 11.5, -0.75);
-        cam.position.set(-1.75, 11.5, 4.2);
-        break;
-      case 'towerRight':
-        target = new this.app.THREE.Vector3(2.35, 11.6, -0.75);
-        cam.position.set(0.2, 13.0, 3.2);
-        break;
-      case 'refPerspective':
-        target = new this.app.THREE.Vector3(1.2, 3.8, 0.0);
-        cam.position.set(-16.0, 4.2, 22.0);
-        break;
-      case 'front':
-        target = new this.app.THREE.Vector3(1.2, 4.0, 0.0);
-        cam.position.set(1.2, 4.0, 26.0);
-        break;
-      case 'iso':
-        target = new this.app.THREE.Vector3(1.2, 3.8, 0.0);
-        cam.position.set(-18.0, 16.0, 20.0);
-        break;
+      switch (viewName) {
+        case 'abacusCutClose':
+          // Direct front close-up targeting motif and channel
+          target = new this.app.THREE.Vector3(-1.75, 11.90, -0.60);
+          cam.position.set(-1.75, 11.95, 2.65);
+          break;
+        case 'abacusRearClose':
+          // Direct rear close-up verifying front-to-back symmetry
+          target = new this.app.THREE.Vector3(-1.75, 11.90, -0.90);
+          cam.position.set(-1.75, 11.95, -4.15);
+          break;
+        case 'abacusClose':
+          // 3/4 perspective matching user reference screenshot
+          target = new this.app.THREE.Vector3(-1.75, 11.75, -0.75);
+          cam.position.set(-3.2, 12.6, 1.2);
+          break;
+        case 'towerFront':
+          target = new this.app.THREE.Vector3(-1.75, 11.5, -0.75);
+          cam.position.set(-1.75, 11.5, 4.2);
+          break;
+        case 'towerRight':
+          target = new this.app.THREE.Vector3(2.35, 11.6, -0.75);
+          cam.position.set(0.2, 13.0, 3.2);
+          break;
+        case 'refPerspective':
+          target = new this.app.THREE.Vector3(1.2, 3.8, 0.0);
+          cam.position.set(-16.0, 4.2, 22.0);
+          break;
+        case 'front':
+          target = new this.app.THREE.Vector3(1.2, 4.0, 0.0);
+          cam.position.set(1.2, 4.0, 26.0);
+          break;
+        case 'iso':
+          target = new this.app.THREE.Vector3(1.2, 3.8, 0.0);
+          cam.position.set(-18.0, 16.0, 20.0);
+          break;
+      }
+
+      ctrl.target.copy(target);
+      cam.lookAt(target);
+      ctrl.update();
     }
-
-    ctrl.target.copy(target);
-    cam.lookAt(target);
-    ctrl.update();
-  }
 
   _setupUI() {
-    const makeEl = typeof makeElement !== 'undefined' ? makeElement : (tag, attrs, ...children) => {
-      const el = document.createElement(tag);
-      if (attrs) {
-        for (const [k, v] of Object.entries(attrs)) {
-          if (k === 'style' && typeof v === 'object') Object.assign(el.style, v);
-          else if (k.startsWith('on')) el.addEventListener(k.slice(2).toLowerCase(), v);
-          else el.setAttribute(k, v);
+        const makeEl = typeof makeElement !== 'undefined' ? makeElement : (tag, attrs, ...children) => {
+          const el = document.createElement(tag);
+          if (attrs) {
+            for (const [k, v] of Object.entries(attrs)) {
+              if (k === 'style' && typeof v === 'object') Object.assign(el.style, v);
+              else if (k.startsWith('on')) el.addEventListener(k.slice(2).toLowerCase(), v);
+              else el.setAttribute(k, v);
+            }
+          }
+          children.flat().forEach(c => el.appendChild(typeof c === 'string' ? document.createTextNode(c) : c));
+          return el;
+        };
+
+        this.defaultConfig = {
+          // Chimneys
+          towerLeftX: -1.85,
+          towerLeftZ: -1.55,
+          towerRightX: 1.85,
+          towerRightZ: -1.55,
+          width: 0.60,
+          depth: 0.66,
+          shaftHeight: 2.35,
+          channelWidth: 0.16,
+          channelDepth: 0.07,
+          step1Height: 0.14,
+          step1Flare: 0.05,
+          step2Height: 0.14,
+          corniceFlare: 0.12,
+          capPitchH: 0.95,
+          roofThickness: 0.065,
+          frameWidth: 0.11,
+          triRecessDepth: 0.12,
+          // Roof System
+          ridgeY: 10.40,
+          ridgeZ: -1.55,
+          eaveY: 6.45,
+          frontEaveZ: 1.85,
+          rearEaveZ: -5.85,
+          leftOverhangX: -6.00,
+          // Left Wing Wall & Skirt
+          leftGableCenterX: -3.70,
+          leftGableWidth: 3.40,
+          leftWallZ: 0.60,
+          leftSkirtTopY: 7.80,
+          leftGableApexY: 10.20,
+          leftWindowW: 1.40,
+          leftWindowH: 1.10,
+          // Front Lunette Gable (Lowered apex <= 10.40 so it doesn't bend ridge)
+          gableApexY: 9.50,
+          gableWallZ: 2.80,
+          gableRakeZ: 3.15,
+          gableLeftX: 1.00,
+          gableRightX: 6.80,
+          windowSillY: 6.65,
+          windowRadius: 1.35,
+          // Big Triangular Dormer off to side
+          dormerCenterX: -0.45,
+          dormerFrontZ: 0.40,
+          dormerWidth: 2.00,
+          dormerApexY: 9.85,
+          dormerNotchW: 0.48,
+          dormerNotchH: 0.30
+        };
+
+        if (!this.towerConfig) {
+          this.towerConfig = { ...this.defaultConfig };
         }
-      }
-      children.flat().forEach(c => el.appendChild(typeof c === 'string' ? document.createTextNode(c) : c));
-      return el;
-    };
+        if (!this.partVisibility) this.partVisibility = {};
+        if (!this.shadingMode) this.shadingMode = 'both';
+        if (this.faceOpacity === undefined) this.faceOpacity = 0.92;
+        this.activeTab = 'roof';
 
-    if (!this.towerConfig) {
-      this.towerConfig = {
-        width: 0.84,
-        depth: 0.88,
-        channelWidth: 0.22,
-        channelDepth: 0.08,
-        step1Height: 0.16,
-        step1Flare: 0.08,
-        step2Height: 0.18,
-        corniceFlare: 0.16,
-        capPitchH: 1.15,
-        roofThickness: 0.08,
-        frameWidth: 0.12,
-        splitHeight: 0.18,
-        triRecessDepth: 0.08
-      };
-    }
-    if (!this.partVisibility) this.partVisibility = {};
-    if (!this.shadingMode) this.shadingMode = 'both';
-    if (this.faceOpacity === undefined) this.faceOpacity = 0.92;
+        // 1. HUD INSPECTOR
+        const hud = makeEl('div', {
+          id: 'tower_part_hud',
+          style: {
+            padding: '6px 8px',
+            background: '#090d13',
+            border: '1px solid #30363d',
+            borderRadius: '4px',
+            fontSize: '10px',
+            fontFamily: 'monospace',
+            color: '#e6edf3',
+            minHeight: '36px',
+            lineHeight: '1.4',
+            marginBottom: '6px'
+          }
+        }, 'Hover over any roof face or chimney line to inspect');
 
-    const sectionTitle = (txt) => makeEl('div', {
-      style: {
-        fontSize: '10px',
-        fontWeight: 'bold',
-        textTransform: 'uppercase',
-        letterSpacing: '0.08em',
-        color: '#58a6ff',
-        marginTop: '8px',
-        marginBottom: '3px'
-      }
-    }, txt);
+        // 2. TAB CONTROLS
+        const tabs = [
+          { id: 'roof', label: '🏠 Roof System' },
+          { id: 'towers', label: '🗼 Chimneys' },
+          { id: 'display', label: '👁️ Display & Views' }
+        ];
 
-    // 1. Camera Projection & Views
-    const orthoBtn = makeEl('button', {
-      id: 'btn_ortho_toggle',
-      style: {
-        width: '100%',
-        padding: '5px',
-        background: '#21262d',
-        border: '1px solid #388bfd',
-        borderRadius: '4px',
-        color: '#58a6ff',
-        fontWeight: 'bold',
-        fontSize: '10.5px',
-        fontFamily: 'monospace',
-        cursor: 'pointer',
-        marginBottom: '4px'
-      }
-    }, '📐 Orthographic (Parallel)');
-    orthoBtn.onclick = () => this.toggleCameraProjection();
-
-    const viewBtns = [
-      { id: 'abacusCutClose', label: '✂️ Abacus Cut Front' },
-      { id: 'abacusClose', label: '🔍 Left Tower 3/4' },
-      { id: 'towerFront', label: '📐 Tower Front Ortho' },
-      { id: 'refPerspective', label: '🏠 Whole House' }
-    ].map(v => {
-      const isFrontOrtho = v.id === 'towerFront';
-      const b = makeEl('button', {
-        style: {
-          padding: '3px 5px',
-          background: isFrontOrtho ? '#23863622' : '#161b22',
-          border: isFrontOrtho ? '1px solid #2ea043' : '1px solid #30363d',
-          borderRadius: '3px',
-          color: isFrontOrtho ? '#3fb950' : '#c9d1d9',
-          fontSize: '9.5px',
-          fontFamily: 'monospace',
-          fontWeight: isFrontOrtho ? 'bold' : 'normal',
-          cursor: 'pointer'
-        }
-      }, v.label);
-      b.onclick = () => this._setPresetView(v.id);
-      return b;
-    });
-    const viewGrid = makeEl('div', {
-      style: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '3px' }
-    }, viewBtns);
-
-    // 2. Shading Mode & Surfaces
-    const modeSelector = makeEl('div', {
-      style: { display: 'flex', gap: '3px', marginTop: '3px', marginBottom: '4px' }
-    }, [
-      { id: 'both', label: 'Solid + Wire' },
-      { id: 'solid', label: 'Solid Only' },
-      { id: 'wire', label: 'Wire Only' }
-    ].map(m => {
-      const btn = makeEl('button', {
-        id: 'btn_mode_' + m.id,
-        style: {
-          flex: '1',
-          padding: '3px',
-          background: this.shadingMode === m.id ? '#1f6feb' : '#21262d',
-          border: '1px solid #30363d',
-          borderRadius: '3px',
-          color: '#fff',
-          fontSize: '9.5px',
-          cursor: 'pointer',
-          fontFamily: 'monospace'
-        }
-      }, m.label);
-      btn.onclick = () => {
-        this.shadingMode = m.id;
-        ['both', 'solid', 'wire'].forEach(id => {
-          const b = document.getElementById('btn_mode_' + id);
-          if (b) b.style.background = this.shadingMode === id ? '#1f6feb' : '#21262d';
+        const tabContainer = makeEl('div', {
+          style: { display: 'flex', borderBottom: '1px solid #30363d', marginBottom: '6px' }
         });
-        this._rebuildWireframe();
-      };
-      return btn;
-    }));
 
-    const opDisp = makeEl('span', { style: { float: 'right', color: '#58a6ff' } }, this.faceOpacity.toFixed(2));
-    const opInp = makeEl('input', {
-      type: 'range',
-      min: '0.0',
-      max: '1.0',
-      step: '0.05',
-      value: String(this.faceOpacity),
-      style: { width: '100%', margin: '2px 0' }
-    });
-    opInp.oninput = () => {
-      this.faceOpacity = parseFloat(opInp.value);
-      opDisp.textContent = this.faceOpacity.toFixed(2);
-      this._rebuildWireframe();
-    };
-    const opRow = makeEl('div', {}, [
-      makeEl('div', { style: { fontSize: '9.5px', color: '#8b949e' } }, 'Solid Surface Opacity', opDisp),
-      opInp
-    ]);
+        const tabPanels = {};
 
-    // 3. Interactive Part Inspector HUD
-    const hud = makeEl('div', {
-      id: 'tower_part_hud',
-      style: {
-        margin: '4px 0',
-        padding: '4px 6px',
-        background: '#090d13',
-        border: '1px solid #30363d',
-        borderRadius: '4px',
-        fontSize: '10px',
-        fontFamily: 'monospace',
-        color: '#e6edf3',
-        minHeight: '28px',
-        lineHeight: '1.3'
-      }
-    }, 'Hover over line or face to inspect');
+        tabs.forEach(t => {
+          const btn = makeEl('button', {
+            id: 'tab_btn_' + t.id,
+            style: {
+              flex: '1',
+              padding: '5px 2px',
+              background: this.activeTab === t.id ? '#21262d' : '#161b22',
+              border: 'none',
+              borderBottom: this.activeTab === t.id ? '2px solid #58a6ff' : '2px solid transparent',
+              color: this.activeTab === t.id ? '#58a6ff' : '#8b949e',
+              fontWeight: 'bold',
+              fontSize: '10px',
+              cursor: 'pointer',
+              fontFamily: 'monospace'
+            }
+          }, t.label);
 
-    // 4. Modular Components
-    const towerParts = [
-      { id: 'cornice', name: 'Stepped Abacus & Cutout', color: '#2ecc71' },
-      { id: 'opening_hood', name: 'Christmas Tree Motif', color: '#ffb74d' },
-      { id: 'cap_roof', name: 'Thick Gable Roof & Rakes', color: '#00f2fe' },
-      { id: 'shaft_body', name: 'Shaft with Vertical Channel', color: '#dfe6e9' },
-      { id: 'shaft_panels', name: 'Recessed X-Brace Panels', color: '#a29bfe' },
-      { id: 'flashing', name: 'Roof Flashing Skirt', color: '#fd79a8' }
-    ];
+          btn.onclick = () => {
+            this.activeTab = t.id;
+            tabs.forEach(o => {
+              const b = document.getElementById('tab_btn_' + o.id);
+              const p = tabPanels[o.id];
+              if (b) {
+                b.style.background = this.activeTab === o.id ? '#21262d' : '#161b22';
+                b.style.borderBottom = this.activeTab === o.id ? '2px solid #58a6ff' : '2px solid transparent';
+                b.style.color = this.activeTab === o.id ? '#58a6ff' : '#8b949e';
+              }
+              if (p) p.style.display = this.activeTab === o.id ? 'block' : 'none';
+            });
+          };
 
-    const partRows = towerParts.map(p => {
-      const chk = makeEl('input', { type: 'checkbox', id: 'chk_' + p.id, checked: true });
-      const badge = makeEl('span', {
-        style: {
-          display: 'inline-block',
-          width: '7px',
-          height: '7px',
-          borderRadius: '50%',
-          background: p.color,
-          marginLeft: '4px',
-          marginRight: '5px'
+          tabContainer.appendChild(btn);
+        });
+
+        this.sliderRefs = {};
+        const makeSlider = (label, param, min, max, step, unitStr = 'ft') => {
+          const val = Number(this.towerConfig[param] || 0);
+          const feetVal = (val * 3.28084).toFixed(1);
+          const valDisp = makeEl('span', { style: { float: 'right', color: '#58a6ff', fontWeight: 'bold' } }, `${val.toFixed(2)} (${feetVal} ${unitStr})`);
+          const lbl = makeEl('div', { style: { fontSize: '9px', color: '#8b949e', marginTop: '3px' } }, label, valDisp);
+          const inp = makeEl('input', {
+            type: 'range',
+            min: String(min),
+            max: String(max),
+            step: String(step),
+            value: String(val),
+            style: { width: '100%', margin: '1px 0' }
+          });
+          this.sliderRefs[param] = { inp, valDisp };
+          inp.oninput = () => {
+            this.towerConfig[param] = parseFloat(inp.value);
+            const f = (this.towerConfig[param] * 3.28084).toFixed(1);
+            valDisp.textContent = `${this.towerConfig[param].toFixed(2)} (${f} ${unitStr})`;
+            this._rebuildWireframe();
+          };
+          return makeEl('div', {}, [lbl, inp]);
+        };
+
+        // --- PANEL 1: ROOF SYSTEM ---
+        const roofPanel = makeEl('div', { id: 'panel_roof', style: { display: 'block' } }, [
+          makeEl('div', { style: { fontSize: '10px', color: '#58a6ff', fontWeight: 'bold', margin: '4px 0' } }, 'Left Wing Wall & Angled Skirt Roof'),
+          makeSlider('Skirt Top Height (Wall Base)', 'leftSkirtTopY', 6.8, 8.8, 0.05),
+          makeSlider('Left Wall Depth Z', 'leftWallZ', 0.2, 1.2, 0.05),
+          makeSlider('Bedroom Window Width', 'leftWindowW', 0.8, 2.2, 0.05),
+          makeSlider('Bedroom Window Height', 'leftWindowH', 0.6, 1.8, 0.05),
+          makeEl('div', { style: { fontSize: '10px', color: '#58a6ff', fontWeight: 'bold', margin: '6px 0 4px 0' } }, 'Triangular Dormer (Off to Side & Big)'),
+          makeSlider('Dormer Center X', 'dormerCenterX', -1.5, 0.5, 0.05),
+          makeSlider('Dormer Width', 'dormerWidth', 1.2, 2.8, 0.05),
+          makeSlider('Dormer Apex Height Y', 'dormerApexY', 8.5, 10.3, 0.05),
+          makeSlider('Dormer Front Depth Z', 'dormerFrontZ', 0.0, 1.2, 0.05),
+          makeSlider('Cutout Notch Width', 'dormerNotchW', 0.20, 0.80, 0.02),
+          makeEl('div', { style: { fontSize: '10px', color: '#58a6ff', fontWeight: 'bold', margin: '6px 0 4px 0' } }, 'Front Lunette Gable (Lovered Apex)'),
+          makeSlider('Gable Apex Height Y (<= 10.40)', 'gableApexY', 8.5, 10.35, 0.05),
+          makeSlider('Semicircle Window Sill Height', 'windowSillY', 6.45, 7.8, 0.05),
+          makeSlider('Semicircle Window Radius', 'windowRadius', 0.8, 1.8, 0.05),
+          makeSlider('Gable Front Overhang Z', 'gableRakeZ', 2.5, 3.8, 0.05),
+          makeEl('div', { style: { fontSize: '10px', color: '#58a6ff', fontWeight: 'bold', margin: '6px 0 4px 0' } }, 'Main Roof & Eave Level'),
+          makeSlider('Main Ridge Height Y', 'ridgeY', 8.5, 12.5, 0.05),
+          makeSlider('Unified Eave Height Y', 'eaveY', 4.8, 8.0, 0.05),
+          makeSlider('Front Eave Depth Z', 'frontEaveZ', 0.8, 3.0, 0.05),
+          makeSlider('Left Side Overhang X', 'leftOverhangX', -7.5, -5.5, 0.05)
+        ]);
+        tabPanels['roof'] = roofPanel;
+
+        // --- PANEL 2: CHIMNEYS ---
+        const towersPanel = makeEl('div', { id: 'panel_towers', style: { display: 'none' } }, [
+          makeEl('div', { style: { fontSize: '10px', color: '#58a6ff', fontWeight: 'bold', margin: '4px 0' } }, 'Chimney Placements (Ridge Straddle)'),
+          makeSlider('Left Chimney X', 'towerLeftX', -3.5, 0.0, 0.05),
+          makeSlider('Left Chimney Z', 'towerLeftZ', -3.0, 0.0, 0.05),
+          makeSlider('Right Chimney X', 'towerRightX', 0.5, 4.5, 0.05),
+          makeSlider('Right Chimney Z', 'towerRightZ', -3.0, 0.0, 0.05),
+          makeEl('div', { style: { fontSize: '10px', color: '#58a6ff', fontWeight: 'bold', margin: '6px 0 4px 0' } }, 'Chimney Proportions & Capital'),
+          makeSlider('Shaft Width', 'width', 0.40, 1.10, 0.02),
+          makeSlider('Shaft Depth', 'depth', 0.40, 1.20, 0.02),
+          makeSlider('Shaft Height Above Ridge', 'shaftHeight', 1.20, 3.80, 0.05),
+          makeSlider('Gable Apex Height (Pitch)', 'capPitchH', 0.60, 1.60, 0.05),
+          makeSlider('Vertical Channel Width', 'channelWidth', 0.06, 0.35, 0.01),
+          makeSlider('Vertical Channel Depth', 'channelDepth', 0.02, 0.16, 0.01),
+          makeSlider('Step 1 Flare', 'step1Flare', 0.02, 0.15, 0.01),
+          makeSlider('Step 2 (Abacus) Flare', 'corniceFlare', 0.04, 0.25, 0.01),
+          makeSlider('Tympanum Recess Depth', 'triRecessDepth', 0.02, 0.25, 0.01)
+        ]);
+        tabPanels['towers'] = towersPanel;
+
+        // --- PANEL 3: DISPLAY & VIEWS ---
+        const orthoBtn = makeEl('button', {
+          id: 'btn_ortho_toggle',
+          style: {
+            width: '100%',
+            padding: '5px',
+            background: '#21262d',
+            border: '1px solid #388bfd',
+            borderRadius: '4px',
+            color: '#58a6ff',
+            fontWeight: 'bold',
+            fontSize: '10px',
+            fontFamily: 'monospace',
+            cursor: 'pointer',
+            marginBottom: '5px'
+          }
+        }, '📐 Orthographic Mode');
+        orthoBtn.onclick = () => this.toggleCameraProjection();
+
+        const viewBtns = [
+          { id: 'refPerspective', label: '🏠 Whole House 3D' },
+          { id: 'front', label: '🏛️ Front Elevation' },
+          { id: 'abacusClose', label: '🔍 Left Chimney Close' },
+          { id: 'iso', label: '📐 Isometric View' }
+        ].map(v => {
+          const b = makeEl('button', {
+            style: {
+              padding: '4px',
+              background: '#161b22',
+              border: '1px solid #30363d',
+              borderRadius: '3px',
+              color: '#c9d1d9',
+              fontSize: '9.5px',
+              fontFamily: 'monospace',
+              cursor: 'pointer'
+            }
+          }, v.label);
+          b.onclick = () => this._setPresetView(v.id);
+          return b;
+        });
+        const viewGrid = makeEl('div', {
+          style: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '3px', marginBottom: '6px' }
+        }, viewBtns);
+
+        const modeSelector = makeEl('div', {
+          style: { display: 'flex', gap: '3px', marginBottom: '6px' }
+        }, [
+          { id: 'both', label: 'Solid + Wire' },
+          { id: 'solid', label: 'Solid Only' },
+          { id: 'wire', label: 'Wire Only' }
+        ].map(m => {
+          const btn = makeEl('button', {
+            id: 'btn_mode_' + m.id,
+            style: {
+              flex: '1',
+              padding: '4px',
+              background: this.shadingMode === m.id ? '#1f6feb' : '#21262d',
+              border: '1px solid #30363d',
+              borderRadius: '3px',
+              color: '#fff',
+              fontSize: '9.5px',
+              cursor: 'pointer',
+              fontFamily: 'monospace'
+            }
+          }, m.label);
+          btn.onclick = () => {
+            this.shadingMode = m.id;
+            ['both', 'solid', 'wire'].forEach(id => {
+              const b = document.getElementById('btn_mode_' + id);
+              if (b) b.style.background = this.shadingMode === id ? '#1f6feb' : '#21262d';
+            });
+            this._rebuildWireframe();
+          };
+          return btn;
+        }));
+
+        const opDisp = makeEl('span', { style: { float: 'right', color: '#58a6ff' } }, this.faceOpacity.toFixed(2));
+        const opInp = makeEl('input', {
+          type: 'range',
+          min: '0.0',
+          max: '1.0',
+          step: '0.05',
+          value: String(this.faceOpacity),
+          style: { width: '100%', margin: '2px 0' }
+        });
+        opInp.oninput = () => {
+          this.faceOpacity = parseFloat(opInp.value);
+          opDisp.textContent = this.faceOpacity.toFixed(2);
+          this._rebuildWireframe();
+        };
+
+        const isoChk = makeEl('input', { type: 'checkbox', id: 'chk_iso_towers' });
+        const isoLbl = makeEl('label', {
+          htmlFor: 'chk_iso_towers',
+          style: { marginLeft: '5px', fontSize: '10px', color: '#ffb74d', fontWeight: 'bold', cursor: 'pointer', fontFamily: 'monospace' }
+        }, 'Isolate Chimneys Only');
+        isoChk.onchange = () => {
+          this.isolateTowers = isoChk.checked;
+          const all = [...this.meshes, ...this.solidMeshes];
+          all.forEach(m => {
+            if (!m.userData?.isTower) m.visible = !this.isolateTowers;
+          });
+        };
+        const isoDiv = makeEl('div', {
+          style: { display: 'flex', alignItems: 'center', padding: '3px 5px', background: '#1c2128', borderRadius: '3px', marginTop: '4px' }
+        }, [isoChk, isoLbl]);
+
+        const displayPanel = makeEl('div', { id: 'panel_display', style: { display: 'none' } }, [
+          orthoBtn,
+          viewGrid,
+          makeEl('div', { style: { fontSize: '10px', color: '#58a6ff', fontWeight: 'bold', margin: '4px 0' } }, 'Shading & Opacity'),
+          modeSelector,
+          makeEl('div', { style: { fontSize: '9px', color: '#8b949e' } }, 'Surface Opacity', opDisp),
+          opInp,
+          isoDiv
+        ]);
+        tabPanels['display'] = displayPanel;
+
+        // 3. COPY / PASTE ACTION TOOLS
+        const copyBtn = makeEl('button', {
+          style: {
+            flex: '1',
+            padding: '5px',
+            background: '#238636',
+            border: 'none',
+            borderRadius: '3px',
+            color: '#fff',
+            fontSize: '10px',
+            fontFamily: 'monospace',
+            fontWeight: 'bold',
+            cursor: 'pointer'
+          }
+        }, '📋 Copy Configuration');
+        copyBtn.onclick = () => {
+          navigator.clipboard.writeText(JSON.stringify(this.towerConfig, null, 2));
+          copyBtn.textContent = '✅ Copied!';
+          setTimeout(() => copyBtn.textContent = '📋 Copy Configuration', 1500);
+        };
+
+        const resetBtn = makeEl('button', {
+          style: {
+            padding: '5px 8px',
+            background: '#21262d',
+            border: '1px solid #30363d',
+            borderRadius: '3px',
+            color: '#c9d1d9',
+            fontSize: '10px',
+            fontFamily: 'monospace',
+            cursor: 'pointer'
+          }
+        }, '🔄 Reset');
+        resetBtn.onclick = () => {
+          this.towerConfig = { ...this.defaultConfig };
+          Object.keys(this.towerConfig).forEach(k => {
+            if (this.sliderRefs[k]) {
+              this.sliderRefs[k].inp.value = String(this.towerConfig[k]);
+              const f = (this.towerConfig[k] * 3.28084).toFixed(1);
+              this.sliderRefs[k].valDisp.textContent = `${this.towerConfig[k].toFixed(2)} (${f} ft)`;
+            }
+          });
+          this._rebuildWireframe();
+        };
+
+        const pasteBtn = makeEl('button', {
+          style: {
+            padding: '5px 8px',
+            background: '#1f6feb',
+            border: 'none',
+            borderRadius: '3px',
+            color: '#fff',
+            fontSize: '10px',
+            fontFamily: 'monospace',
+            cursor: 'pointer'
+          }
+        }, '📥 Paste');
+        pasteBtn.onclick = () => {
+          const raw = prompt('Paste Configuration JSON:');
+          if (raw) {
+            try {
+              const parsed = JSON.parse(raw);
+              Object.assign(this.towerConfig, parsed);
+              Object.keys(this.towerConfig).forEach(k => {
+                if (this.sliderRefs[k]) {
+                  this.sliderRefs[k].inp.value = String(this.towerConfig[k]);
+                  const f = (this.towerConfig[k] * 3.28084).toFixed(1);
+                  this.sliderRefs[k].valDisp.textContent = `${this.towerConfig[k].toFixed(2)} (${f} ft)`;
+                }
+              });
+              this._rebuildWireframe();
+            } catch (e) {
+              alert('Invalid JSON: ' + e.message);
+            }
+          }
+        };
+
+        const actionRow = makeEl('div', {
+          style: { display: 'flex', gap: '3px', marginTop: '6px', paddingTop: '4px', borderTop: '1px solid #21262d' }
+        }, [copyBtn, pasteBtn, resetBtn]);
+
+        const content = makeEl('div', {
+          style: { display: 'flex', flexDirection: 'column', gap: '2px', padding: '2px' }
+        }, [
+          hud,
+          tabContainer,
+          roofPanel,
+          towersPanel,
+          displayPanel,
+          actionRow
+        ]);
+
+        if (typeof UITools !== 'undefined' && typeof UITools.makeDialog === 'function') {
+          this.controlsDialog = UITools.makeDialog({
+            env: this.env,
+            title: 'Architectural House CAD Suite',
+            contentElement: content,
+            size: [290, 560],
+            position: [16, 16],
+            allowMinimize: true,
+            allowMaximize: false
+          });
         }
-      });
-      const lbl = makeEl('label', {
-        htmlFor: 'chk_' + p.id,
-        style: { fontSize: '10px', color: '#c9d1d9', cursor: 'pointer', fontFamily: 'monospace' }
-      }, p.name);
 
-      chk.onchange = () => {
-        this.partVisibility[p.id] = chk.checked;
-        const all = [...this.meshes, ...this.solidMeshes];
-        all.filter(m => m.userData?.partId === p.id).forEach(m => m.visible = chk.checked);
-      };
-
-      return makeEl('div', {
-        style: { display: 'flex', alignItems: 'center', marginTop: '1px' }
-      }, [chk, badge, lbl]);
-    });
-
-    // Isolate Tower Mode
-    const isoChk = makeEl('input', { type: 'checkbox', id: 'chk_iso_towers' });
-    const isoLbl = makeEl('label', {
-      htmlFor: 'chk_iso_towers',
-      style: { marginLeft: '5px', fontSize: '10px', color: '#ffb74d', fontWeight: 'bold', cursor: 'pointer', fontFamily: 'monospace' }
-    }, 'Isolate Towers Only');
-    isoChk.onchange = () => {
-      this.isolateTowers = isoChk.checked;
-      const all = [...this.meshes, ...this.solidMeshes];
-      all.forEach(m => {
-        if (!m.userData?.isTower) m.visible = !this.isolateTowers;
-      });
-    };
-    const isoDiv = makeEl('div', {
-      style: { display: 'flex', alignItems: 'center', padding: '3px 5px', background: '#1c2128', borderRadius: '3px', marginTop: '4px' }
-    }, [isoChk, isoLbl]);
-
-    // 5. Dimension Sliders
-    const makeSlider = (label, param, min, max, step) => {
-      const valDisp = makeEl('span', { style: { float: 'right', color: '#58a6ff', fontWeight: 'bold' } }, this.towerConfig[param].toFixed(2));
-      const lbl = makeEl('div', { style: { fontSize: '9.5px', color: '#8b949e', marginTop: '3px' } }, label, valDisp);
-      const inp = makeEl('input', {
-        type: 'range',
-        min: String(min),
-        max: String(max),
-        step: String(step),
-        value: String(this.towerConfig[param]),
-        style: { width: '100%', margin: '1px 0' }
-      });
-      inp.oninput = () => {
-        this.towerConfig[param] = parseFloat(inp.value);
-        valDisp.textContent = this.towerConfig[param].toFixed(2);
-        this._rebuildWireframe();
-      };
-      return makeEl('div', {}, [lbl, inp]);
-    };
-
-    const sliderGroup = makeEl('div', {
-      style: { padding: '4px 6px', background: '#0d1117', border: '1px solid #21262d', borderRadius: '4px' }
-    }, [
-      makeSlider('📐 Gable Apex Height (Sets Pitch)', 'capPitchH', 0.80, 1.80, 0.05),
-      makeSlider('🏠 Roof Slab Thickness (90° Cut)', 'roofThickness', 0.03, 0.20, 0.01),
-      makeSlider('🎄 Frame Trim Width (All 3 Sides)', 'frameWidth', 0.04, 0.25, 0.01),
-      makeSlider('🎄 Split Notch Height', 'splitHeight', 0.05, 0.40, 0.01),
-      makeSlider('✂️ Channel & Cut Width', 'channelWidth', 0.08, 0.42, 0.01),
-      makeSlider('✂️ Channel & Cut Depth', 'channelDepth', 0.02, 0.20, 0.01),
-      makeSlider('🎄 Tympanum Recess Depth', 'triRecessDepth', 0.02, 0.20, 0.01),
-      makeSlider('Step 1 (Collar) Height', 'step1Height', 0.05, 0.35, 0.01),
-      makeSlider('Step 1 (Collar) Flare', 'step1Flare', 0.02, 0.20, 0.01),
-      makeSlider('Step 2 (Abacus) Height', 'step2Height', 0.05, 0.35, 0.01),
-      makeSlider('Step 2 (Abacus) Flare', 'corniceFlare', 0.05, 0.30, 0.01),
-      makeSlider('Shaft Width', 'width', 0.60, 1.30, 0.02),
-      makeSlider('Shaft Depth', 'depth', 0.60, 1.30, 0.02)
-    ]);
-
-    // 6. JSON Config Readout
-    const jsonBox = makeEl('pre', {
-      id: 'tower_config_json',
-      style: {
-        background: '#04070a',
-        border: '1px solid #21262d',
-        padding: '4px',
-        fontSize: '8.5px',
-        color: '#39c5bb',
-        borderRadius: '3px',
-        maxHeight: '75px',
-        overflow: 'auto',
-        fontFamily: 'monospace'
-      }
-    }, JSON.stringify(this.towerConfig, null, 2));
-
-    const content = makeEl('div', {
-      style: { display: 'flex', flexDirection: 'column', gap: '2px', padding: '2px' }
-    }, [
-      sectionTitle('View & Camera Mode'),
-      orthoBtn,
-      viewGrid,
-      sectionTitle('Shading & Surfaces'),
-      modeSelector,
-      opRow,
-      sectionTitle('Part Inspector (Hover on 3D)'),
-      hud,
-      sectionTitle('Modular Components'),
-      ...partRows,
-      isoDiv,
-      sectionTitle('Parametric Dimensions'),
-      sliderGroup,
-      sectionTitle('Current Parameter Values'),
-      jsonBox
-    ]);
-
-    if (typeof UITools !== 'undefined' && typeof UITools.makeDialog === 'function') {
-      this.controlsDialog = UITools.makeDialog({
-        env: this.env,
-        title: 'Tower Precision CAD Suite',
-        contentElement: content,
-        size: [270, 520],
-        position: [16, 16],
-        allowMinimize: true,
-        allowMaximize: false
-      });
+        this._setupRaycasting();
     }
-
-    this._setupRaycasting();
-  }
   destroy() {
     this.destroyed = true;
 
@@ -672,63 +798,73 @@ class House {
     }
 
   _setupRaycasting() {
-      if (!this.app || !this.app.renderer) return;
-      const THREE = this.app.THREE;
+        if (!this.app || !this.app.renderer) return;
+        const THREE = this.app.THREE;
 
-      this.pointer = new THREE.Vector2();
-      this.hoverRaycaster = new THREE.Raycaster();
-      this.hoverRaycaster.params.Line = { threshold: 0.12 };
-      this.hoveredObject = null;
+        this.pointer = new THREE.Vector2();
+        this.hoverRaycaster = new THREE.Raycaster();
+        this.hoverRaycaster.params.Line = { threshold: 0.15 };
+        this.hoveredObject = null;
 
-      const onPointerMove = (event) => {
-        const rect = this.app.renderer.domElement.getBoundingClientRect();
-        this.pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-        this.pointer.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
-      };
+        const onPointerMove = (event) => {
+          const rect = this.app.renderer.domElement.getBoundingClientRect();
+          this.pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+          this.pointer.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+        };
 
-      this.app.renderer.domElement.addEventListener('pointermove', onPointerMove);
+        this.app.renderer.domElement.addEventListener('pointermove', onPointerMove);
 
-      const originalUpdate = this.app.onUpdateCallback;
-      this.app.onUpdateCallback = () => {
-        if (originalUpdate) originalUpdate();
-        this._updateRaycasting();
-      };
+        const originalUpdate = this.app.onUpdateCallback;
+        this.app.onUpdateCallback = () => {
+          if (originalUpdate) originalUpdate();
+          this._updateRaycasting();
+        };
     }
 
   _updateRaycasting() {
-      if (!this.hoverRaycaster || !this.app || !this.app.camera || !this.meshes) return;
+        if (!this.hoverRaycaster || !this.app || !this.app.camera || !this.meshes) return;
 
-      this.hoverRaycaster.setFromCamera(this.pointer, this.app.camera);
+        this.hoverRaycaster.setFromCamera(this.pointer, this.app.camera);
 
-      const candidates = this.meshes.filter(m => m.visible);
-      const intersects = this.hoverRaycaster.intersectObjects(candidates, false);
-      const hitObj = intersects.length > 0 ? intersects[0].object : null;
+        // Check both wire lines and solid surfaces for granular hover inspection
+        const candidates = [...(this.solidMeshes || []), ...(this.meshes || [])].filter(m => m.visible);
+        const intersects = this.hoverRaycaster.intersectObjects(candidates, false);
+        const hit = intersects.length > 0 ? intersects[0] : null;
+        const hitObj = hit ? hit.object : null;
 
-      if (this.hoveredObject !== hitObj) {
-        // Restore previous object color
-        if (this.hoveredObject && this.hoveredObject.material) {
-          this.hoveredObject.material.color.setHex(this.hoveredObject.userData.baseColor);
-          this.hoveredObject.material.linewidth = this.hoveredObject.userData.isTower ? 1.5 : 1;
-        }
-
-        this.hoveredObject = hitObj;
-
-        // Highlight new object in bright fluorescent yellow
-        const hudEl = document.getElementById('tower_part_hud');
-        if (this.hoveredObject && this.hoveredObject.material) {
-          this.hoveredObject.material.color.setHex(0xffea00);
-          this.hoveredObject.material.linewidth = 3;
-
-          if (hudEl) {
-            const u = this.hoveredObject.userData;
-            hudEl.innerHTML = `<strong>ID:</strong> <span style="color:#00f2fe;">${u.partId}</span><br><strong>Part:</strong> ${u.partName}`;
-            hudEl.style.borderColor = '#ffea00';
+        if (this.hoveredObject !== hitObj) {
+          // Restore previous element's original color
+          if (this.hoveredObject && this.hoveredObject.material) {
+            if (this.hoveredObject.userData.isSolid) {
+              this.hoveredObject.material.color.setHex(this.hoveredObject.userData.baseSolidColor || 0xcccccc);
+            } else {
+              this.hoveredObject.material.color.setHex(this.hoveredObject.userData.baseColor || 0x58a6ff);
+              this.hoveredObject.material.linewidth = this.hoveredObject.userData.isTower ? 1.5 : 1;
+            }
           }
-        } else if (hudEl) {
-          hudEl.innerHTML = `<span style="color:#8b949e;">Hover over any line to inspect ID</span>`;
-          hudEl.style.borderColor = '#30363d';
+
+          this.hoveredObject = hitObj;
+
+          const hudEl = document.getElementById('tower_part_hud');
+          if (this.hoveredObject && this.hoveredObject.material) {
+            // Highlight in fluorescent cyan/yellow
+            this.hoveredObject.material.color.setHex(0x00f2fe);
+            if (!this.hoveredObject.userData.isSolid) {
+              this.hoveredObject.material.linewidth = 3;
+            }
+
+            if (hudEl) {
+              const u = this.hoveredObject.userData;
+              const pt = hit.point;
+              const ptStr = pt ? `X:${pt.x.toFixed(2)} Y:${pt.y.toFixed(2)} Z:${pt.z.toFixed(2)}` : '';
+              hudEl.innerHTML = `<strong>Part:</strong> <span style="color:#58a6ff;">${u.partName}</span><br><strong>ID:</strong> <code style="color:#39c5bb;">${u.partId}</code><br><span style="color:#8b949e; font-size:8.5px;">Point: ${ptStr}</span>`;
+              hudEl.style.borderColor = '#00f2fe';
+            }
+          } else if (hudEl) {
+            hudEl.innerHTML = `<span style="color:#8b949e;">Hover over any roof face or chimney to inspect</span>`;
+            hudEl.style.borderColor = '#30363d';
+          }
         }
-      }
     }
 }
 

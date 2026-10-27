@@ -11,6 +11,8 @@
   },
   "main": [
     "ModelLoader.js",
+    "RoofBuilder.js",
+    "TowerBuilder.js",
     "Simple3dShapes.js",
     "House.js"
   ],
@@ -22,19 +24,19 @@
   "styles": [
     "basic3d.css"
   ],
-  "processedCountSinceCheckpoint": 20,
+  "processedCountSinceCheckpoint": 22,
   "changedMethods": {
-    "House/luno.json": "2026-08-30T13:19:24.327Z",
-    "Library/ThreeJSLoader.js": "2026-08-30T18:28:04.452Z",
-    "House/Simple3dShapes.js": "2026-08-30T13:19:24.327Z",
-    "House/ModelLoader.js": "2026-08-30T13:19:24.327Z",
-    "House/House.js": "2026-08-30T18:28:04.452Z",
-    "LunoParser/protocol_test.js": "2026-09-27T19:18:36.687Z",
-    "Simple3dShapes.js": "2026-10-26T21:27:01.326Z",
-    "House.js": "2026-10-26T21:27:01.326Z",
-    "src/Simple3dShapes.js": "2026-10-26T19:25:39.796Z",
-    "src/House.js": "2026-10-26T19:25:39.796Z"
+    "House/luno.json": "2026-10-27T03:00:00.000Z",
+    "House/RoofBuilder.js": "2026-10-27T03:00:00.000Z",
+    "House/TowerBuilder.js": "2026-10-27T03:00:00.000Z",
+    "House/Simple3dShapes.js": "2026-10-27T03:00:00.000Z",
+    "House/House.js": "2026-10-27T03:00:00.000Z",
+    "RoofBuilder.js": "2026-10-27T03:32:32.312Z",
+    "TowerBuilder.js": "2026-10-27T03:32:32.312Z",
+    "Simple3dShapes.js": "2026-10-27T03:32:32.312Z",
+    "House.js": "2026-10-27T03:32:32.312Z",
+    "luno.json": "2026-10-27T03:01:19.002Z"
   },
-  "lastCheckpointTime": "2026-10-26T19:18:36.472Z",
-  "pendingCheckpointDescription": "Clean fork initialized from Basic3D"
+  "lastCheckpointTime": "2026-10-26T22:11:12.805Z",
+  "pendingCheckpointDescription": "Parametric RoofSystem, dynamic tower-plane intersection, and modular builder split"
 }
